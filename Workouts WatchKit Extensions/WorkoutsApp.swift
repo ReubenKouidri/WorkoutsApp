@@ -1,15 +1,9 @@
-//
-//  WorkoutsApp.swift
-//  Workouts Watch App
-//
-//  Created by Hamid Kouidri on 18/10/2023.
-//
 
 import SwiftUI
 
 @main
 struct Workouts_Watch_AppApp: App {
-    @StateObject var workoutManager = WorkoutManager()
+    @StateObject var workoutManager = WorkoutManager()  // StateObjects allow the View to be updated instead of recreated due to updating Views
     
     @SceneBuilder var body: some Scene {
         WindowGroup {
