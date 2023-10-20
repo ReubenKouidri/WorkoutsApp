@@ -62,7 +62,7 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
-      notificationPayloadFile = "Workouts Watch App/Workouts WatchKit Extensions/PushNotificationPayload.apns">
+      notificationPayloadFile = "Workouts WatchKit Extensions/PushNotificationPayload.apns">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference

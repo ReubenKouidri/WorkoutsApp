@@ -81,7 +81,7 @@ struct SummaryView: View {
                     value: 143.formatted(
                         .number.precision(.fractionLength(0))
                     )
-                    + " bmp"
+                    + " bpm"
                 ).accentColor(.red)
                 
                 Text("Activity Rings")

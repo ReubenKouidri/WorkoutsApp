@@ -21,16 +21,11 @@ struct StartView: View {
                 NavigationLink(
                     workoutType.name,
                     value: workoutType
-                    // !!DEPRICATED!!
-                    // destination: SessionPagingView(),
-                    // tag: workoutType,
-                    // selection: $workoutManager.selectedWorkout  // binding to the selectedWorkout in workoutManager
                 )
                 .navigationDestination(for: HKWorkoutActivityType.self) { workout in
                     SessionPagingView()
                 }
                 .padding(EdgeInsets(top: 15, leading: 5, bottom:15, trailing: 5))  // add padding to give a larger tap area
-                
             }
             .listStyle(.carousel)  // provides depth effect
             .navigationBarTitle("Workouts")  // set title at top
@@ -54,15 +49,14 @@ extension HKWorkoutActivityType: Identifiable {
         case .coreTraining:
             return "Core"
         case .functionalStrengthTraining:
-            return "Strength"
+            return "FingerBoard"
         case .running:
-            return "Running"
+            return "Run"
         default:
             return ""
         }
     }
 }
-
 
 
 #Preview {

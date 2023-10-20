@@ -53,4 +53,5 @@ struct SessionPagingView: View {
 
 #Preview {
     SessionPagingView()
+        .environmentObject(WorkoutManager())
 }

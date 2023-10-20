@@ -6,12 +6,12 @@ import HealthKit
 class WorkoutManager: NSObject, ObservableObject {
     var selectedWorkout: HKWorkoutActivityType? { // track selected workout
         didSet { // tracker so that whenever this changes, startWorkout is called
-            guard let selectedWorkout = selectedWorkout else { return }  // only call selected workout if selectedWorkoutis not nil
+            guard let selectedWorkout = selectedWorkout else { return }  // only call selected workout if selectedWorkout is not nil
             startWorkout(workoutType: selectedWorkout)
         }
     }
     
-    // workout ends, change showingSummaryView to true
+    // when workout ends, change showingSummaryView to true
     @Published var showingSummaryView: Bool = false {
         didSet {
             // Sheet dismissed
@@ -21,7 +21,8 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     }
     
-    // request authorisation to use personal data
+    // MARK: Request Auth
+    // to use personal data
     func requestAuthorisation() {
         // quantity type to write to the heathStore
         let typesToShare: Set = [
@@ -33,9 +34,8 @@ class WorkoutManager: NSObject, ObservableObject {
             HKQuantityType.quantityType(forIdentifier: .heartRate)!,
             HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!,
             HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!,
-            HKQuantityType.quantityType(forIdentifier: .distanceCycling)!,
             HKQuantityType.quantityType(forIdentifier: .flightsClimbed)!,
-            HKQuantityType.quantityType(forIdentifier: .atrialFibrillationBurden)!,
+            //HKQuantityType.quantityType(forIdentifier: .atrialFibrillationBurden)!,
             HKObjectType.activitySummaryType()  // permission to read activity rings summary
         ]
         
@@ -50,6 +50,7 @@ class WorkoutManager: NSObject, ObservableObject {
     var session: HKWorkoutSession?
     var builder: HKLiveWorkoutBuilder?
     
+    // MARK: Start Workout
     func startWorkout(workoutType: HKWorkoutActivityType) {  // e.g. .running, .climbing, etc...
         let configuration  = HKWorkoutConfiguration()
         configuration.activityType = workoutType
@@ -81,7 +82,7 @@ class WorkoutManager: NSObject, ObservableObject {
     
     // MARK: - State Control
     // The workout session state
-    @Published var running = false  // @Published => changes to this variable will automatically trigger UI updates if being observed by Views
+    @Published var running = true  // @Published => changes to this variable will automatically trigger UI updates if being observed by Views
     
     func pause() {
         session?.pause()

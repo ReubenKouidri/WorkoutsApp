@@ -32,4 +32,5 @@ struct ControlsView: View {
 
 #Preview {
     ControlsView()
+        .environmentObject(WorkoutManager())
 }
