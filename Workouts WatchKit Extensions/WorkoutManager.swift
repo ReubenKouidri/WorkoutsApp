@@ -16,7 +16,7 @@ class WorkoutManager: NSObject, ObservableObject {
         didSet {
             // Sheet dismissed
             if showingSummaryView == false {
-                selectedWorkout = nil
+                resetWorkout()
             }
         }
     }
@@ -71,6 +71,7 @@ class WorkoutManager: NSObject, ObservableObject {
         )  // dataSource will automatically provide live data from a workout session
         
         session?.delegate = self
+        builder?.delegate = self
         
         // start session and begin collecting data
         let startDate = Date()
@@ -105,6 +106,49 @@ class WorkoutManager: NSObject, ObservableObject {
         session?.end()
         showingSummaryView = true
     }
+    
+    // MARK: Workout Metrics
+    @Published var averageHeartRate: Double = 0  // used by summary view
+    @Published var heartRate: Double = 0
+    @Published var activeEnergy: Double = 0
+    @Published var distance: Double = 0
+    @Published var workout: HKWorkout?
+    
+    func updateForStatistics(_ statistics: HKStatistics?) {  // takes an optional type
+        guard let statistics = statistics else { return }  // return if statistics is nil
+        
+        DispatchQueue.main.async {  // dispatch updates async to the main queue
+            switch statistics.quantityType {  // switch through each quantity type
+            case HKQuantityType.quantityType(forIdentifier: .heartRate):
+                let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
+                self.heartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0
+                self.averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
+                
+            case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
+                let energyUnit = HKUnit.kilocalorie()
+                self.activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
+            
+            case HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning),
+                HKQuantityType.quantityType(forIdentifier: .distanceCycling):
+                let meterUnit = HKUnit.meter()
+                self.distance = statistics.sumQuantity()?.doubleValue(for: meterUnit) ?? 0
+                
+            default:
+                return
+            }
+        }
+    }
+    
+    func resetWorkout() {
+        selectedWorkout = nil
+        builder = nil
+        session = nil
+        workout = nil
+        activeEnergy = 0
+        averageHeartRate = 0
+        heartRate = 0
+        distance = 0
+    }
 }
 
 
@@ -125,7 +169,9 @@ extension WorkoutManager: HKWorkoutSessionDelegate {
         if toState == .ended {
             builder?.endCollection(withEnd: date) { (success, error) in
                 self.builder?.finishWorkout { (workout, error) in
-                    // do sth
+                    DispatchQueue.main.async {
+                        self.workout = workout
+                    }
                 }
             }
         }
@@ -134,5 +180,21 @@ extension WorkoutManager: HKWorkoutSessionDelegate {
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
         print("Error occured in change of workout session")
         return
+    }
+}
+
+extension WorkoutManager: HKLiveWorkoutBuilderDelegate {
+    func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {
+        // called whenever the bulder collects an event
+    }
+    
+    func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
+        // called whenever the builder collects new samples
+        for type in collectedTypes {
+            guard let quantityType = type as? HKQuantityType else { return }  // ensure collected type is a HKQuantityType
+            let statistics = workoutBuilder.statistics(for: quantityType)
+            //update published vars
+            updateForStatistics(statistics)  // update published metric values
+        }
     }
 }
