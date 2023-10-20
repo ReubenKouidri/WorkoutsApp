@@ -33,6 +33,7 @@ import SwiftUI
 import HealthKit
 
 struct SummaryView: View {
+    @Environment(\.dismiss) var dismiss  // adds ability to dismiss the sheet
     @State private var durationFormatter:
     DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
@@ -89,6 +90,7 @@ struct SummaryView: View {
                 ).frame(width: 50, height: 50)
                 
                 Button("Done"){
+                    dismiss()
                 }
             }
             .scenePadding()  // make text views and dividers align with navBar title

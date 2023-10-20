@@ -11,6 +11,16 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     }
     
+    // workout ends, change showingSummaryView to true
+    @Published var showingSummaryView: Bool = false {
+        didSet {
+            // Sheet dismissed
+            if showingSummaryView == false {
+                selectedWorkout = nil
+            }
+        }
+    }
+    
     // request authorisation to use personal data
     func requestAuthorisation() {
         // quantity type to write to the heathStore
@@ -36,9 +46,9 @@ class WorkoutManager: NSObject, ObservableObject {
     
     
     
-    let healthStore = HKHealthStore()  //
-    var session: HKWorkoutSession?  //
-    var builder: HKLiveWorkoutBuilder?  //
+    let healthStore = HKHealthStore()
+    var session: HKWorkoutSession?
+    var builder: HKLiveWorkoutBuilder?
     
     func startWorkout(workoutType: HKWorkoutActivityType) {  // e.g. .running, .climbing, etc...
         let configuration  = HKWorkoutConfiguration()
@@ -59,6 +69,8 @@ class WorkoutManager: NSObject, ObservableObject {
             workoutConfiguration: configuration  // takes in the config
         )  // dataSource will automatically provide live data from a workout session
         
+        session?.delegate = self
+        
         // start session and begin collecting data
         let startDate = Date()
         session?.startActivity(with: startDate)
@@ -67,5 +79,59 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     }
     
+    // MARK: - State Control
+    // The workout session state
+    @Published var running = false  // @Published => changes to this variable will automatically trigger UI updates if being observed by Views
     
+    func pause() {
+        session?.pause()
+    }
+    
+    func resume() {
+        session?.resume()
+    }
+    
+    func togglePause() {
+        if running {
+            pause()
+        }
+        else {
+            resume()
+        }
+    }
+    
+    func endWorkout() {
+        session?.end()
+        showingSummaryView = true
+    }
+}
+
+
+// MARK: -HKWorkoutSessionDelegate
+// Implement Protocol to be notified when a workout session's state changes
+
+extension WorkoutManager: HKWorkoutSessionDelegate {
+    // func is called whenever the session State changes
+    func workoutSession(_ workoutSession: HKWorkoutSession,
+                        didChangeTo toState: HKWorkoutSessionState,
+                        from fromState: HKWorkoutSessionState,
+                        date: Date) {
+        DispatchQueue.main.async {
+            self.running = toState == .running
+        }
+        
+        // wait for the session to transition states before ending the builder
+        if toState == .ended {
+            builder?.endCollection(withEnd: date) { (success, error) in
+                self.builder?.finishWorkout { (workout, error) in
+                    // do sth
+                }
+            }
+        }
+    }
+    
+    func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
+        print("Error occured in change of workout session")
+        return
+    }
 }

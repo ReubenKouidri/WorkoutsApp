@@ -23,6 +23,7 @@ import WatchKit
 
 
 struct SessionPagingView: View {
+    @EnvironmentObject var workoutManager: WorkoutManager
     @State private var selection: Tab = .metrics  // State variable
     
     enum Tab {
@@ -30,14 +31,23 @@ struct SessionPagingView: View {
     }
     
     var body: some View {
-        TabView(
-            selection: $selection,
-            content:  {
+        TabView(selection: $selection) {
                 ControlsView().tag(Tab.controls)  // tags allow selection
                 MetricsView().tag(Tab.metrics)
                 NowPlayingView().tag(Tab.nowPlaying)
             }
-        )
+        .navigationTitle(workoutManager.selectedWorkout?.name ?? "")
+        .navigationBarBackButtonHidden(true)  // do not go back to start view whilst in a workout
+        .navigationBarHidden(selection == .nowPlaying)
+        .onChange(of: workoutManager.running) {
+            displayMetricsView()
+        }
+    }
+    
+    private func displayMetricsView() {
+        withAnimation {
+            selection = .metrics
+        }
     }
 }
 

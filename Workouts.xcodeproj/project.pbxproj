@@ -119,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				1CC73B1A2AE00CD000110EE2 /* Workouts Watch App */,
+				1CC73B512AE023E000110EE2 /* Workouts WatchKit Extensions */,
 				1CC73B2B2AE00CD100110EE2 /* Workouts Watch AppTests */,
 				1CC73B352AE00CD100110EE2 /* Workouts Watch AppUITests */,
 				1CC73B112AE00CD000110EE2 /* Products */,
@@ -139,10 +140,9 @@
 		1CC73B1A2AE00CD000110EE2 /* Workouts Watch App */ = {
 			isa = PBXGroup;
 			children = (
-				1CC73B682AE15F1400110EE2 /* Workouts-Watch-App-Info.plist */,
-				1CC73B512AE023E000110EE2 /* Workouts WatchKit Extensions */,
-				1CC73B1F2AE00CD100110EE2 /* Assets.xcassets */,
 				1CC73B212AE00CD100110EE2 /* Preview Content */,
+				1CC73B1F2AE00CD100110EE2 /* Assets.xcassets */,
+				1CC73B682AE15F1400110EE2 /* Workouts-Watch-App-Info.plist */,
 			);
 			path = "Workouts Watch App";
 			sourceTree = "<group>";
@@ -175,8 +175,10 @@
 		1CC73B512AE023E000110EE2 /* Workouts WatchKit Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				1CC73B1B2AE00CD000110EE2 /* WorkoutsApp.swift */,
 				1CC73B662AE15D8400110EE2 /* PushNotificationPayload.apns */,
+				1CC73B622AE15D3700110EE2 /* NotificationView.swift */,
+				1CC73B642AE15D4F00110EE2 /* NotificationController.swift */,
+				1CC73B1B2AE00CD000110EE2 /* WorkoutsApp.swift */,
 				1CC73B1D2AE00CD000110EE2 /* StartView.swift */,
 				1CC73B5C2AE03DD500110EE2 /* SummaryView.swift */,
 				1CC73B602AE1455400110EE2 /* WorkoutManager.swift */,
@@ -185,8 +187,6 @@
 				1CC73B542AE024ED00110EE2 /* MetricsView.swift */,
 				1CC73B582AE03A3200110EE2 /* ControlsView.swift */,
 				1CC73B562AE02F1A00110EE2 /* ElapsedTimeView.swift */,
-				1CC73B622AE15D3700110EE2 /* NotificationView.swift */,
-				1CC73B642AE15D4F00110EE2 /* NotificationController.swift */,
 			);
 			path = "Workouts WatchKit Extensions";
 			sourceTree = "<group>";

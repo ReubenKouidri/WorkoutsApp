@@ -16,6 +16,9 @@ struct Workouts_Watch_AppApp: App {
             NavigationView {
                 StartView()
             }
+            .sheet(isPresented: $workoutManager.showingSummaryView) {  // bind to showingSummaryView, i.e. true or false
+                SummaryView()
+            }
             .environmentObject(workoutManager)
         }
         
