@@ -33,8 +33,10 @@ import SwiftUI
 import HealthKit
 
 struct SummaryView: View {
+    @EnvironmentObject var workoutManager: WorkoutManager
     @Environment(\.dismiss) var dismiss  // adds ability to dismiss the sheet
     @State private var durationFormatter:
+    
     DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
         formatter.allowedUnits = [.hour, .minute, .second]  // displays hours, mins, secs, separated by colons
@@ -43,61 +45,66 @@ struct SummaryView: View {
     }()
     
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(alignment: .leading) {
-                SummaryMetricView(
-                    title: "Total Time",
-                    value: durationFormatter.string(from: 30 * 60 + 15) ?? ""
-                ).accentColor(.yellow)
-                
-                SummaryMetricView(
-                    title: "Total Distance",
-                    value: Measurement(
-                        value: 1645,
-                        unit: UnitLength.meters
-                    ).formatted(
-                        .measurement(
-                            width: .abbreviated,
-                            usage: .road
+        if workoutManager.workout == nil {
+            ProgressView("Saving Workout")
+                .navigationBarHidden(true)
+        } else {
+            ScrollView(.vertical) {
+                VStack(alignment: .leading) {
+                    SummaryMetricView(
+                        title: "Total Time",
+                        value: durationFormatter.string(from: workoutManager.workout?.duration ?? 0.0) ?? ""
+                    ).accentColor(.yellow)
+                    
+                    SummaryMetricView(
+                        title: "Total Distance",
+                        value: Measurement(
+                            value: workoutManager.workout?.totalDistance?.doubleValue(for: .meter()) ?? 0,
+                            unit: UnitLength.meters
+                        ).formatted(
+                            .measurement(
+                                width: .abbreviated,
+                                usage: .road
+                            )
                         )
-                    )
-                ).accentColor(.green)
-                
-                SummaryMetricView(
-                    title: "Total Energy",
-                    value: Measurement(
-                        value: 96,
-                        unit: UnitEnergy.kilocalories
-                    ).formatted(
-                        .measurement(
-                            width: .abbreviated,
-                            usage: .workout
+                    ).accentColor(.green)
+                    
+                    SummaryMetricView(
+                        title: "Total Energy",
+                        value: Measurement(
+                            value: workoutManager.workout?.totalEnergyBurned?.doubleValue(for: .kilocalorie()) ?? 0,
+                            unit: UnitEnergy.kilocalories
+                        ).formatted(
+                            .measurement(
+                                width: .abbreviated,
+                                usage: .workout
+                            )
                         )
-                    )
-                ).accentColor(.pink)
-                
-                SummaryMetricView(
-                    title: "Avg. HR",
-                    value: 143.formatted(
-                        .number.precision(.fractionLength(0))
-                    )
-                    + " bpm"
-                ).accentColor(.red)
-                
-                Text("Activity Rings")
-                ActivityRingsView(
-                    healthStore: HKHealthStore()
-                ).frame(width: 50, height: 50)
-                
-                Button("Done"){
-                    dismiss()
+                    ).accentColor(.pink)
+                    
+                    SummaryMetricView(
+                        title: "Avg. HR",
+                        value: workoutManager.averageHeartRate.formatted(
+                            .number.precision(.fractionLength(0))
+                        )
+                        + " bpm"
+                    ).accentColor(.red)
+                    
+                    Text("Activity Rings")
+                    ActivityRingsView(
+                        healthStore: workoutManager.healthStore
+                    ).frame(width: 50, height: 50)
+                    
+                    Button("Done"){
+                        dismiss()
+                    }
                 }
+                .scenePadding()  // make text views and dividers align with navBar title
             }
-            .scenePadding()  // make text views and dividers align with navBar title
+            .navigationTitle("Summary")
+            .navigationBarTitleDisplayMode(.inline)
+            
         }
-        .navigationTitle("Summary")
-        .navigationBarTitleDisplayMode(.inline)
-        
     }
 }
 
@@ -120,4 +127,5 @@ struct SummaryMetricView: View {
 
 #Preview {
     SummaryView()
+        .environmentObject(WorkoutManager())
 }
